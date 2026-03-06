@@ -1,8 +1,30 @@
 # CSV回帰分析・機械学習ツール
 
 ## 概要
-ブラウザ上でCSVファイルを読み込み、サーバーレス環境で機械学習アルゴリズムを実行できるWebアプリケーションです。
-「手元のデータをサクッと分析したい」「機械学習のアルゴリズムがどのように結果を返すのか学びたい」という目的で作成しました。
+ブラウザ上でCSVファイルを読み込み、サーバーレス環境で機械学習アルゴリズムを実行できるWebアプリケーションです。  
+「手元のデータをサクッと分析したい！」「スマホで分析したい！」という思いで作成しました。  
+
+## サイトURL
+実際のアプリケーションはこちらからお試しいただけます。  
+URL:[easy-ml.com](https://easy-ml.com/)  
+
+## サイト・ファイル構成 (Directory Structure)
+本プロジェクトの構成は以下の通りです。機能ごとにファイルを分割し、管理しやすくしています。
+```text
+.
+├── index.html                  # ホーム画面（ツールの説明と簡易プレビュー機能）
+├── multiple_regression.html    # 重回帰分析ページ（数値予測）
+├── logistic.html               # ロジスティック回帰分析ページ（2値分類）
+├── random_forest.html          # ランダムフォレストページ（分類・回帰）
+│
+├── config.js                   # 共通設定（AWS API GatewayのエンドポイントURLを管理, Githubには載せていません）
+├── script.js                   # 重回帰分析ページ用のJavaScript
+├── logistic_script.js          # ロジスティック回帰分析ページ用のJavaScript
+├── random_forest_script.js     # ランダムフォレストページ用のJavaScript
+│
+└── backend_python/             # バックエンド（AWS Lambda）のソースコード
+    └── lambda_function.py      # 機械学習の処理（Pandas, scikit-learn）を行うAPI本体
+```
 
 ## 主な機能
 * **データの簡易プレビュー機能**: サーバーにデータを送る前に、ブラウザ上でCSVの中身と文字コード（UTF-8, Shift-JISなど）の確認が可能。
@@ -18,6 +40,7 @@
 * HTML5 / CSS3
 * JavaScript (Vanilla JS)
     * ※外部ライブラリに依存せず、標準の `fetch` APIや非同期処理（`async/await`）を用いて実装。
+* AWS (S3, Cloudflontから配信)
 
 ### バックエンド/インフラ
 * Python 3.12
