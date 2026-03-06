@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ランダムフォレスト - CSV回帰分析ツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* 共通のCSSスタイル */
+        body { margin: 0; font-family: sans-serif; background: #f9f9f9; color: #333; }
+        header { background: #2c3e50; color: white; padding: 2rem; text-align: center; }
+        header h1 { margin: 0; }
+        header p { margin-top: 0.5rem; opacity: 0.9; }
+        nav { margin-top: 1.5rem; }
+        nav a { background: #3498db; color: white; padding: 0.75rem 1.5rem; margin: 0 0.5rem; border-radius: 5px; text-decoration: none; display: inline-block; transition: background-color 0.2s; }
+        nav a:hover { background: #2980b9; }
+        nav a.active { background: #2980b9; cursor: default; }
+        main { padding: 2rem; max-width: 900px; margin: auto; }
+        footer { text-align: center; padding: 1rem; margin-top: 2rem; background: #ddd; }
+        main > h1 { color: #2c3e50; border-bottom: 2px solid #ccc; padding-bottom: 0.5rem; margin-top: 0; }
+        .step { margin-bottom: 2em; padding: 1.5em; border: 1px solid #e0e0e0; border-radius: 6px; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .step h2 { margin-top: 0; font-size: 1.4em; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 0.3em; }
+        label { font-weight: bold; display: block; margin-bottom: 0.5em; }
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5em; margin-top: 1em; align-items: center; }
+        input[type="checkbox"], input[type="radio"] { width: auto; margin-right: 0.5em; vertical-align: middle; }
+        select, input[type="file"] { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background-color: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 1em; transition: background-color 0.3s; width: 100%; margin-top: 1em; }
+        button:hover { background-color: #2980b9; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        table { border-collapse: collapse; margin-top: 1em; width: 100%; font-size: 0.9em; }
+        th, td { border: 1px solid #ccc; padding: 0.5em; text-align: left; white-space: nowrap; }
+        th { background-color: #ecf0f1; }
+        .preview-container, #variableSelectionArea { max-height: 400px; overflow: auto; }
+        #loader { display: none; margin: 1em 0; font-weight: bold; color: #e67e22; text-align: center; }
+        .variable-selection-list { list-style-type: none; padding: 0; }
+        .variable-selection-list li { padding: 8px 5px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .variable-selection-list li:last-child { border-bottom: none; }
+        .variable-selection-list label { font-weight: normal; display: inline-block; margin-bottom: 0; }
+        /* ランダムフォレストの「重要度」を棒グラフにするためのCSS */
+        .importance-bar-bg { background-color: #ecf0f1; width: 100%; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px;}
+        .importance-bar-fill { background-color: #3498db; height: 100%; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>CSV回帰分析ツール</h1>
+        <p>アップロードしたCSVファイルから各種機械学習アルゴリズムを実行します。</p>
+        <nav>
+            <a href="index.html">ホーム</a>
+            <a href="multiple_regression.html">重回帰分析</a>
+            <a href="logistic.html">ロジスティック回帰分析</a>
+            <a href="random_forest.html" class="active">ランダムフォレスト</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>ランダムフォレスト</h1>
+        <p>決定木を組み合わせた高精度なアルゴリズムです。分類と回帰の両方に対応し、各変数の「重要度」を視覚的に確認できます。</p>
+        
+        <div class="step">
+            <h2>Step 1: ファイルと読み込みオプションの選択</h2>
+            <input type="file" id="csvFile" accept=".csv">
+            <div class="options-grid">
+                <div>
+                    <label for="encoding">文字コード:</label>
+                    <select id="encoding">
+                        <option value="utf-8">UTF-8</option>
+                        <option value="sjis">Shift-JIS</option>
+                        <option value="cp932">CP932</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="checkbox" id="hasHeader" checked>
+                    <label for="hasHeader" style="font-weight: normal; display: inline;">1行目をヘッダーとして使用</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="hasIndex">
+                    <label for="hasIndex" style="font-weight: normal; display: inline;">1列目をインデックスとして使用</label>
+                </div>
+                </div>
+            <button id="localPreviewBtn" disabled>1. プレビュー表示＆変数選択へ</button>
+        </div>
+
+        <div id="step2" class="step" style="display: none;">
+            <h2>Step 2: 分析タイプと変数選択</h2>
+            
+            <div style="background: #e8f4f8; padding: 1em; border-radius: 5px; margin-bottom: 1em;">
+                <label>分析タイプを選択してください：</label>
+                <div>
+                    <label style="font-weight: normal; display: inline-block; margin-right: 1em;">
+                        <input type="radio" name="taskType" value="classification" checked> <strong>分類</strong> (カテゴリの予測: Yes/No, 良品/不良品など)
+                    </label>
+                    <label style="font-weight: normal; display: inline-block;">
+                        <input type="radio" name="taskType" value="regression"> <strong>回帰</strong> (数値の予測: 売上, 温度, 価格など)
+                    </label>
+                </div>
+            </div>
+
+            <div class="preview-container" id="localPreviewArea"></div>
+            <hr>
+            <h3>変数選択</h3>
+            <div id="variableSelectionArea"></div>
+        </div>
+        
+        <div id="step3" class="step" style="display: none;">
+            <h2>Step 3: 分析実行</h2>
+            <button id="regressionBtn" disabled>3. ランダムフォレストを実行</button>
+        </div>
+        
+        <div id="loader">処理中...</div>
+
+        <div id="step4" class="step" style="display: none;">
+            <h2>分析結果</h2>
+            <div id="resultArea"></div>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2026 Regression Tools Inc.
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="random_forest_script.js"></script>
+
+</body>
+</html>
