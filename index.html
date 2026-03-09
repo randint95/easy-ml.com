@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>CSV回帰分析ツール - ホーム</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* --------------------------------------------------
+           サイト全体で共通して使うCSS（デザインの設計図）
+           ※他のページと同じスタイルを適用して統一感を出しています
+        -------------------------------------------------- */
+        body { margin: 0; font-family: sans-serif; background: #f9f9f9; color: #333; }
+        header { background: #2c3e50; color: white; padding: 2rem; text-align: center; }
+        header h1 { margin: 0; }
+        header p { margin-top: 0.5rem; opacity: 0.9; }
+        
+        /* ナビゲーションメニューのデザイン */
+        nav { margin-top: 1.5rem; }
+        nav a { background: #3498db; color: white; padding: 0.75rem 1.5rem; margin: 0 0.5rem; border-radius: 5px; text-decoration: none; display: inline-block; transition: background-color 0.2s; }
+        nav a:hover { background: #2980b9; }
+        nav a.active { background: #2980b9; cursor: default; } /* 現在いるページを濃い青色にして分かりやすくする */
+        
+        main { padding: 2rem; max-width: 900px; margin: auto; }
+        footer { text-align: center; padding: 1rem; margin-top: 2rem; background: #ddd; }
+        
+        main > h1 { color: #2c3e50; border-bottom: 2px solid #ccc; padding-bottom: 0.5rem; margin-top: 0; }
+        section { margin-bottom: 3rem; background: white; padding: 1.5em; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        section h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 0.3em; font-size: 1.4em; }
+        
+        /* トップページのプレビュー表のデザイン */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9em; }
+        th, td { border: 1px solid #ccc; padding: 0.5em; text-align: left; white-space: nowrap; }
+        th { background-color: #ecf0f1; }
+        .preview-container { max-height: 400px; overflow: auto; margin-top: 1em; }
+        
+        /* フォーム部品のデザイン */
+        select, input[type="file"] { padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-top: 0.5em; }
+        .flex-container { display: flex; gap: 1em; align-items: center; margin-bottom: 1em; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>CSVデータ分析ツール</h1>
+        <p>アップロードしたCSVファイルから、各種機械学習アルゴリズムを手軽に実行できます。</p>
+        <nav>
+            <a href="index.html" class="active">ホーム</a>
+            <a href="multiple_regression.html">重回帰分析</a>
+            <a href="logistic.html">ロジスティック回帰分析</a>
+            <a href="random_forest.html">ランダムフォレスト</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>サイト構成について</h2>
+            <p>本サイトは、CSVファイルを使ったデータ分析・機械学習ツールです。</p>
+            <p>以下の3つの分析機能を備えています：</p>
+            <ul>
+                <li><strong>重回帰分析：</strong> 売上や気温などの「数値」を予測することができます。</li>
+                <li><strong>ロジスティック回帰分析：</strong> 「良品/不良品」などの分類を予測することができます。(3分類以上も可)</li>
+                <li><strong>ランダムフォレスト：</strong> 分類と回帰の両方に対応し、各変数の「重要度」を視覚化できます。</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>CSVファイルの簡易プレビュー</h2>
+            <p>分析ページに行く前に、ファイルの中身が文字化けせずに正しく読み込めるか、ここで簡単に確認できます。</p>
+            
+            <div class="flex-container">
+                <div>
+                    <label for="encoding"><strong>文字コード:</strong></label><br>
+                    <select id="encoding">
+                        <option value="utf-8">UTF-8</option>
+                        <option value="sjis">Shift-JIS (WindowsのExcel等)</option>
+                        <option value="cp932">CP932</option>
+                    </select>
+                </div>
+                <div>
+                    <label><strong>ファイル選択:</strong></label><br>
+                    <input type="file" id="csvFile" accept=".csv" />
+                </div>
+            </div>
+            
+            <div id="preview" class="preview-container">
+                <p style="color: #7f8c8d;">※ファイルを選択すると、ここに最初の10行が表示されます。</p>
+            </div>
+        </section>
+    </main>
+
+
+    <script src="index_script.js" defer></script>
+
+</body>
+</html>
